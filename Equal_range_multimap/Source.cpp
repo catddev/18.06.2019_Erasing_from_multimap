@@ -22,11 +22,6 @@ using namespace std;
 
 
 
-bool asc(const Book& obj1, const Book& obj2) {
-	//return (obj1.getNumber() < obj2.getNumber()); //будет сортировать по кол-ву экземпляров
-	return (obj1.getYear() < obj2.getYear()); // чтобы работало по году нужно чтобы в прототипе getYear() было CONST!
-}
-
 void remove_by_property(multimap<string, Book>& mb, string prop) {
 	string tmp;
 	cout << "Enter your property's value" << endl;
@@ -39,40 +34,46 @@ void remove_by_property(multimap<string, Book>& mb, string prop) {
 			//	lib.erase(it);
 			//}
 
+	auto it = mb.begin();
 	if (prop == "author") {
-
-		for (auto it = mb.begin(); it != mb.end(); it++) {
-			if (it->second.getAuthor() == tmp) {
-				if (it != mb.end()) {
-					mb.erase(it);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
+		while(true) {//здесь всегда перепрыгивает НОВЫЙ первый итератор, поэтому по циклу вводим один итератор, а удаляем по другому итератору
+			auto nit = mb.find(tmp);
+			//if (nit != mb.end()) {//here
+				if (nit->first == tmp) {
+					mb.erase(nit);
+					
 				}
+			//}
+			if (!mb.empty())
+				it = mb.begin();
+			else break;
+			
+		}
+		//never erases last el it=mb.end();!!!!! what to do?
+		/*if (mb.size() == 1 && it->first == tmp)
+			mb.clear();*/
+	}
+	else if (prop == "title") {
+		for (auto it = mb.begin(); it != mb.end(); it++) {
+			auto nit = mb.begin();
+			if (nit->second.getTitle() == tmp) {
+				mb.erase(nit);
+				if (!mb.empty())
+					it = mb.begin();
+				else break;
 			}
 		}
 	}
-	else if (prop == "title") {
-		for (auto it = mb.begin(); it != mb.end(); it++)
-			if (it->second.getTitle() == tmp) {
-				if (it != mb.end()) {
-					mb.erase(it);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
-				}
-			}
-	}
 	else if (prop == "year") {
-		for (auto it = mb.begin(); it != mb.end(); it++)
-			if (it->second.getYear() == tmp) {
-				if (it != mb.end()) {
-					mb.erase(it);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
-				}
+		for (auto it = mb.begin(); it != mb.end(); it++) {
+			auto nit = mb.begin();
+			if (nit->second.getYear() == tmp) {
+				mb.erase(nit);
+				if (!mb.empty())
+					it = mb.begin();
+				else break;
 			}
+		}
 	}
 }
 
@@ -81,9 +82,6 @@ void remove_by_property(multimap<string, Book>& mb, string prop) {
 int main() {
 
 	setlocale(LC_ALL, "");
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-
 
 	ifstream lib_file("library.txt");
 	multimap<string, Book> lib;
@@ -93,7 +91,7 @@ int main() {
 
 	string author, title, publish;
 	int number;
-	vector<Book> b1;
+	vector<Book> v;
 
 	while (!lib_file.eof()) {
 		getline(lib_file, author, '#');
@@ -103,7 +101,7 @@ int main() {
 		lib_file.ignore();
 		bookset.insert(author);
 		lib.insert(pair<string, Book>(author, Book(author, title, publish, number)));
-		b1.push_back(Book(author, title, publish, number));
+		v.push_back(Book(author, title, publish, number));
 
 	}
 
@@ -179,7 +177,7 @@ int main() {
 		case 5:
 		{
 			if (!lib.empty()) {//!!!!!
-				cout << endl << "БИБЛИОТЕКА:" << endl;
+				//cout << endl << "БИБЛИОТЕКА:" << endl;
 				for (auto it = bookset.begin(); it != bookset.end(); it++) {
 					auto ret = lib.equal_range(*it);
 					cout << ret.first->first << endl;
@@ -193,11 +191,6 @@ int main() {
 		break;
 		}
 	}
-
-	sort(b1.begin(), b1.end(), asc);
-	for_each(b1.begin(), b1.end(), [](Book b) {
-		cout << b.getAuthor() << " " << b << endl;
-	});
 
 	system("pause");
 	return 0;
