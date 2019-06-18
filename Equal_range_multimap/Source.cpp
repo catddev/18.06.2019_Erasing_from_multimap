@@ -22,58 +22,71 @@ using namespace std;
 
 
 
-void remove_by_property(multimap<string, Book>& mb, string prop) {
+void remove_by_property(multimap<string, Book>& mb, set<string> s, string prop) {
 	string tmp;
 	cout << "Enter your property's value" << endl;
 	cin.ignore();//!
 	getline(cin, tmp, '\n');
 
-	//auto it = lib.find(author);
+
+	auto it = mb.begin();
+	if (prop == "author") {
+
+		//здесь всегда перепрыгивает НОВЫЙ первый итератор, поэтому по циклу вводим один итератор, а удаляем по другому итератору
+		do {
+			it++;
+			auto nit = mb.find(tmp);
+			if (nit != mb.end()) {//here
+				if (nit->first == tmp) {
+					mb.erase(nit);
+					if (!mb.empty())
+						it = mb.begin();
+					else break;
+				}
+			}
+		} while (it != mb.end());
+		//исп do-while чтобы входил последний случай когда it==mb.end()
+
+	}
+	else if (prop == "title") {
+		//auto it = lib.find(author);
 			//if (it != lib.end()) {
 			//	if(it->second.getTitle()==title)//erasing by title
 			//	lib.erase(it);
 			//}
-
-	auto it = mb.begin();
-	if (prop == "author") {
-		while(true) {//здесь всегда перепрыгивает НОВЫЙ первый итератор, поэтому по циклу вводим один итератор, а удаляем по другому итератору
-			auto nit = mb.find(tmp);
-			//if (nit != mb.end()) {//here
-				if (nit->first == tmp) {
+		do {
+			it++;
+			/*for (auto sit = s.begin(); sit != s.end(); sit++) {
+				auto nit = mb.find(*sit);
+				if (nit->second.getTitle() == tmp) {
 					mb.erase(nit);
-					
+					if (!mb.empty())
+						it = mb.begin();
+					else break;
 				}
-			//}
-			if (!mb.empty())
-				it = mb.begin();
-			else break;
-			
-		}
-		//never erases last el it=mb.end();!!!!! what to do?
-		/*if (mb.size() == 1 && it->first == tmp)
-			mb.clear();*/
-	}
-	else if (prop == "title") {
-		for (auto it = mb.begin(); it != mb.end(); it++) {
-			auto nit = mb.begin();
-			if (nit->second.getTitle() == tmp) {
-				mb.erase(nit);
-				if (!mb.empty())
-					it = mb.begin();
-				else break;
-			}
-		}
+			}*/
+			for (auto git = mb.begin(); git != mb.end(); git++)
+				if (git->second.getTitle() == tmp) {
+					auto nit = git;
+						mb.erase(nit);
+						if (!mb.empty())
+							it = mb.begin();
+						else break;
+				}
+		} while (it != mb.end());
 	}
 	else if (prop == "year") {
-		for (auto it = mb.begin(); it != mb.end(); it++) {
-			auto nit = mb.begin();
-			if (nit->second.getYear() == tmp) {
-				mb.erase(nit);
-				if (!mb.empty())
-					it = mb.begin();
-				else break;
-			}
-		}
+
+		do {
+			it++;
+				auto nit = mb.begin();
+				if (nit->second.getYear() == tmp) {
+					mb.erase(nit);
+					if (!mb.empty())
+						it = mb.begin();
+					else break;
+				}
+		} while (it != mb.end());
 	}
 }
 
@@ -127,7 +140,7 @@ int main() {
 			cout << "Enter \"year\" to erase by publishing year" << endl;
 			cin >> property;
 
-			remove_by_property(lib, property);
+			remove_by_property(lib, bookset, property);
 
 			if (!lib.empty()) {
 				cout << endl;
