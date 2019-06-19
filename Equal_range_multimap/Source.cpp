@@ -21,75 +21,46 @@ using namespace std;
 //	Использовать контейнерный класс multimap
 
 
-
-void remove_by_property(multimap<string, Book>& mb, set<string> s, string prop) {
+void remove_by_property(multimap<string, Book>& mb, int prop) {
 	string tmp;
 	cout << "Enter your property's value" << endl;
 	cin.ignore();//!
 	getline(cin, tmp, '\n');
 
-
 	auto it = mb.begin();
-	if (prop == "author") {
 
+	if (prop == 1) {
 		//здесь всегда перепрыгивает НОВЫЙ первый итератор, поэтому по циклу вводим один итератор, а удаляем по другому итератору
-		do {
-			it++;
-			auto nit = mb.find(tmp);
-			if (nit != mb.end()) {//here
-				if (nit->first == tmp) {
-					mb.erase(nit);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
-				}
-			}
-		} while (it != mb.end());
+		//do {
+		//	it++;
+		//	auto nit = mb.find(tmp);//author is a key
+		//	if (nit != mb.end()) {
+		//		if (nit->first == tmp) {
+		//			mb.erase(nit);
+		//			if (!mb.empty())
+		//				it = mb.begin();
+		//			else break;
+		//		}
+		//	}
+		//} while (it != mb.end());
 		//исп do-while чтобы входил последний случай когда it==mb.end()
-
+		mb.erase(tmp); //если erase по ключу, то удаляет сразу все элементы с таким ключом
 	}
-	else if (prop == "title") {
-		//auto it = lib.find(author);
-			//if (it != lib.end()) {
-			//	if(it->second.getTitle()==title)//erasing by title
-			//	lib.erase(it);
-			//}
-		do {
-			it++;
-			/*for (auto sit = s.begin(); sit != s.end(); sit++) {
-				auto nit = mb.find(*sit);
-				if (nit->second.getTitle() == tmp) {
-					mb.erase(nit);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
-				}
-			}*/
-			for (auto git = mb.begin(); git != mb.end(); git++)
-				if (git->second.getTitle() == tmp) {
-					auto nit = git;
-						mb.erase(nit);
-						if (!mb.empty())
-							it = mb.begin();
-						else break;
-				}
-		} while (it != mb.end());
+	else if (prop == 2) {
+		for (auto it = mb.begin(); it != mb.end();/*здесь пусто, без шага цикла, для multimap не сработает */) {
+			auto nit = it++;//пересохраняем итератор иначе будет ошибка cannot increment value-initialized iterator it, т.е. без nit просто it++ нельзя
+			if (nit->second.getTitle() == tmp)
+				mb.erase(nit);
+		}
 	}
-	else if (prop == "year") {
-
-		do {
-			it++;
-				auto nit = mb.begin();
-				if (nit->second.getYear() == tmp) {
-					mb.erase(nit);
-					if (!mb.empty())
-						it = mb.begin();
-					else break;
-				}
-		} while (it != mb.end());
+	else if (prop == 3) {
+		for (auto it = mb.begin(); it != mb.end();) {
+			auto nit = it++;
+			if (nit->second.getYear() == tmp)
+				mb.erase(nit);	
+		}
 	}
 }
-
 
 
 int main() {
@@ -115,7 +86,6 @@ int main() {
 		bookset.insert(author);
 		lib.insert(pair<string, Book>(author, Book(author, title, publish, number)));
 		v.push_back(Book(author, title, publish, number));
-
 	}
 
 	while (true) {
@@ -134,13 +104,13 @@ int main() {
 		switch (choice1) {
 		case 1:
 		{
-			string property;
-			cout << "Enter \"author\" to erase by author" << endl;
-			cout << "Enter \"title\" to erase by title" << endl;
-			cout << "Enter \"year\" to erase by publishing year" << endl;
+			int property;
+			cout << "Enter 1 to erase by author" << endl;
+			cout << "Enter 2 to erase by title" << endl;
+			cout << "Enter 3 to erase by publishing year" << endl;
 			cin >> property;
 
-			remove_by_property(lib, bookset, property);
+			remove_by_property(lib, property);
 
 			if (!lib.empty()) {
 				cout << endl;
@@ -149,8 +119,7 @@ int main() {
 				});
 			}
 			else
-				cout << "EMPTY MAP!" << endl;
-
+				cout << endl << "EMPTY MAP!" << endl;
 		}
 		break;
 		case 2:
@@ -168,11 +137,10 @@ int main() {
 			cin.ignore();
 			getline(cin, author, '\n');
 
-			for (auto it = bookset.begin(); it != bookset.end(); it++) {//every *it - unique author
-				auto ret = lib.equal_range(*it); //*it is a key for multimap.
-				//Equal_range sets only 2 ptr - first (when we "first" meet author in the multimap, and "second" when it is last book of the author in the multimap lib
-				if (*it == author)//by author
-					for (auto mit = ret.first; mit != ret.second; mit++)// mit is iterator for multimap
+			for (auto it = bookset.begin(); it != bookset.end(); it++) {
+				auto ret = lib.equal_range(*it);
+				if (*it == author)
+					for (auto mit = ret.first; mit != ret.second; mit++)
 						cout << mit->second << endl;
 			}
 		}
@@ -189,8 +157,7 @@ int main() {
 		break;
 		case 5:
 		{
-			if (!lib.empty()) {//!!!!!
-				//cout << endl << "БИБЛИОТЕКА:" << endl;
+			if (!lib.empty()) {
 				for (auto it = bookset.begin(); it != bookset.end(); it++) {
 					auto ret = lib.equal_range(*it);
 					cout << ret.first->first << endl;
