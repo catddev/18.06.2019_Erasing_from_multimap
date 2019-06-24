@@ -89,6 +89,7 @@ int main() {
 	}
 
 	while (true) {
+
 		cout << endl << "Enter 1 to remove a book" << endl;
 		cout << "Enter 2 to add a book" << endl;
 		cout << "Enter 3 to get books by author" << endl;
@@ -97,6 +98,8 @@ int main() {
 		cout << "Enter 0 to exit" << endl;
 		int choice1;
 		cin >> choice1;
+		system("cls");//clear screen
+
 		if (choice1 == 0)
 			break;
 		Book yourBook;
